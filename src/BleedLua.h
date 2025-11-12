@@ -15,7 +15,7 @@ class BleedLua {
     public:
     BleedLua();
     ~BleedLua();
-    void execString(const char* code);
+    int execString(const char* code);
     lua_State *getLuaState();
     void dumpStack();
 };

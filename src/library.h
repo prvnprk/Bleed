@@ -7,6 +7,7 @@
 #include <android/log.h>
 #include <thread>
 #include "redirectOutput.h"
+#include "BleedStream.h"
 jint JNI_OnLoad(JavaVM *vm, void *reserved);
 void hello();
 

@@ -15,10 +15,12 @@ BleedLua::~BleedLua() {
     lua_close(L);
 }
 
-void BleedLua::execString(const char* code) {
-    luaL_dostring(L,code);
+int BleedLua::execString(const char* code) {
+    int strret = luaL_dostring(L,code);
     dumpStack();
     lua_settop(L, 0); //clear stack
+
+    return strret;
 }
 
 lua_State* BleedLua::getLuaState() {

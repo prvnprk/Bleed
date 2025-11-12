@@ -3,11 +3,19 @@
 
 
 void hello() {
-    BleedLua *lua = new BleedLua();
-    lua->execString(R"(
-            print("lua Test")
-        )");
-    delete lua;
+    // BleedLua *lua = new BleedLua();
+    // lua->execString(R"(
+    //         print("lua Test")
+    //     )");
+    // delete lua;
+
+    BleedStream *stream = new BleedStream();
+    printf("hello world stdout1\n");
+    if (stream->serverSetup() == 1) {
+        printf("server error\n");
+    }
+    stream->serverLoop();
+
 
     while (true) {
         printf("hello world stdout\n");
