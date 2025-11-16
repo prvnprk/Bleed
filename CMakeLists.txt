@@ -43,6 +43,10 @@
 #)
 
 
+#cmake .. -G Ninja -DCMAKE_SYSTEM_NAME=Android -DCMAKE_SYSTEM_VERSION=21 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DCMAKE_ANDROID_NDK=D:/toolchains/android-ndk-r27d-windows/android-ndk-r27d -DCMAKE_ANDROID_STL_TYPE=c++_static
+
+
+
 
 cmake_minimum_required(VERSION 3.21)
 
