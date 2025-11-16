@@ -45,7 +45,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: build/*.so
-        body: "BLEED android ARM64 native libraries built from ${{ github.sha }}"
+        body: "BLEED android ARM64 native library:"
         draft: false
         prerelease: false
       env:
