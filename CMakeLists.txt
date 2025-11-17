@@ -23,6 +23,8 @@ add_library(Bleed SHARED
         src/redirectOutput.h
         src/BleedStream.cpp
         src/BleedStream.h
+        src/states.cpp
+        src/states.h
 )
 
 target_include_directories(Bleed PRIVATE ${CMAKE_SOURCE_DIR}/include)

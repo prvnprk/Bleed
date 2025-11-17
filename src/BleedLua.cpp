@@ -4,12 +4,82 @@
 
 #include "BleedLua.h"
 
+#include <unistd.h>
+
+
+#include "states.h"
 
 
 BleedLua::BleedLua() {
     L = luaL_newstate();
     luaL_openlibs(L);
+
+    lua_register(L, "readMem", readMemory);
+    lua_register(L, "writeMem", writeMemory);
+    lua_register(L, "readMaps", readMaps);
+    lua_register(L, "print", luaPrint);
 }
+
+int BleedLua::luaPrint(lua_State *L) {
+
+    const char *str = luaL_checkstring(L, 1);
+
+    send(currentBleedState.client_fd, str, strlen(str), 0);
+
+    printf("custom %s\n", str);
+
+    lua_pushlstring(L, str, strlen(str));
+
+    return 1;
+
+
+}
+
+int BleedLua::readMemory(lua_State *L) {
+
+    int size = luaL_checkinteger(L, 1);
+    long long offset = luaL_checkinteger(L, 2);
+
+    char* buf = (char*)malloc(size);
+    if (!buf)
+        return luaL_error(L, "malloc failed");
+
+    ssize_t bytes_read = pread(currentBleedState.mem, buf, size, offset);
+
+    if (bytes_read < 0) {
+        free(buf);
+        return luaL_error(L, "pread failed");
+    }
+
+    printf("Read %d bytes\n", bytes_read);
+
+
+    lua_pushlstring(L, buf, bytes_read);
+
+    free(buf);
+    return 1;
+}
+
+int BleedLua::writeMemory(lua_State *L) {
+
+}
+
+int BleedLua::readMaps(lua_State *L) {
+
+    std::stringstream mapsstream;
+
+    mapsstream << currentBleedState.mem_maps.rdbuf();
+
+    lua_pushlstring(L, mapsstream.str().c_str(), mapsstream.str().size());
+
+    currentBleedState.mem_maps.clear();
+    currentBleedState.mem_maps.seekg(0);
+
+    return 1;
+
+}
+
+
 
 BleedLua::~BleedLua() {
     lua_close(L);
@@ -17,8 +87,6 @@ BleedLua::~BleedLua() {
 
 int BleedLua::execString(const char* code) {
     int strret = luaL_dostring(L,code);
-    dumpStack();
-    lua_settop(L, 0); //clear stack
 
     return strret;
 }
@@ -27,26 +95,17 @@ lua_State* BleedLua::getLuaState() {
     return L;
 }
 
-void BleedLua::dumpStack() {
-    int top=lua_gettop(L);
-    for (int i=1; i <= top; i++) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "LUASTACK TYPE: ","%d\t%s\t", i, luaL_typename(L,i));
-        switch (lua_type(L, i)) {
-            case LUA_TNUMBER:
-                __android_log_print(ANDROID_LOG_VERBOSE, "LUASTACK ","%g\n",lua_tonumber(L,i));
-                break;
-            case LUA_TSTRING:
-                __android_log_print(ANDROID_LOG_VERBOSE, "LUASTACK ","%s\n",lua_tostring(L,i));
-                break;
-            case LUA_TBOOLEAN:
-                __android_log_print(ANDROID_LOG_VERBOSE, "LUASTACK ","%s\n", (lua_toboolean(L, i) ? "true" : "false"));
-                break;
-            case LUA_TNIL:
-                __android_log_print(ANDROID_LOG_VERBOSE, "LUASTACK ","%s\n", "nil");
-                break;
-            default:
-                __android_log_print(ANDROID_LOG_VERBOSE, "LUASTACK ","%p\n",lua_topointer(L,i));
-                break;
-        }
-    }
+
+
+void BleedLua::popStack(int n) {
+    lua_pop(L, n);
 }
+
+const char* BleedLua::luaToString(signed int n) {
+    return lua_tostring(L,n);
+}
+
+int BleedLua::luaGetTop() {
+    return lua_gettop(L);
+}
+

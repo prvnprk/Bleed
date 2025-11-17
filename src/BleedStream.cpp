@@ -4,9 +4,12 @@
 
 #include "BleedStream.h"
 
+#include "states.h"
 
 
 BleedStream::BleedStream() {
+
+    lua = new BleedLua();
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
 
@@ -34,11 +37,6 @@ int BleedStream::serverLoop() {
 
     // std::cout << "BleedStream::serverLoop" << std::endl;
 
-    BleedLua *lua = new BleedLua();
-
-
-
-    lua_State* L = lua->getLuaState();
 
     printf("serverloop\n");
 
@@ -46,43 +44,50 @@ int BleedStream::serverLoop() {
     while (true) {
         sockaddr_in client{};
         socklen_t client_size = sizeof(client);
-        int client_fd = accept(server_socket, (sockaddr*)&client, &client_size);
-        if (client_fd == -1) { perror("accept"); continue; }
+        currentBleedState.client_fd = accept(server_socket, (sockaddr*)&client, &client_size);
 
-        char buffer[4096];
-        ssize_t bytes = read(client_fd, buffer, sizeof(buffer) - 1);
-        if (bytes <= 0) { close(client_fd); continue; }
 
-        buffer[bytes] = 0;
-        std::cout << "Executing: " << buffer << "\n";
+        if (currentBleedState.client_fd == -1) { perror("accept"); continue; }
 
-        if (lua->execString(buffer) != LUA_OK) {
-            const char* err = lua_tostring(L, -1);
-            send(client_fd, err, strlen(err), 0);
-            lua_pop(L, 1);
+
+        std::vector<char> buffer;
+        buffer.reserve(4096);
+
+        char temp[4096];
+        ssize_t bytes = recv(currentBleedState.client_fd, temp, sizeof(temp), 0);
+        if (bytes <= 0) { close(currentBleedState.client_fd); continue; }
+
+        buffer.insert(buffer.end(), temp, temp + bytes);
+        buffer.push_back('\0');
+
+        std::cout << "Executing: " << buffer.data() << "\n";
+
+        if (lua->execString(buffer.data()) != LUA_OK) {
+            const char* err = lua->luaToString(-1);
+            send(currentBleedState.client_fd, err, strlen(err), 0);
+            lua->popStack(1);
         } else {
-
-            if (lua_gettop(L) > 0) {
-                const char* result = lua_tostring(L, -1);
+            if (lua->luaGetTop() > 0) {
+                const char* result = lua->luaToString(-1);
                 if (result)
-                    send(client_fd, result, strlen(result), 0);
-                lua_pop(L, 1);
+                    send(currentBleedState.client_fd, result, strlen(result), 0);
+                lua->popStack(1);
             } else {
-                const char* ok = "OK";
-                send(client_fd, ok, strlen(ok), 0);
+                const char* ok = "\nOK\n";
+                send(currentBleedState.client_fd, ok, strlen(ok), 0);
             }
         }
 
-        close(client_fd);
-
-
+        close(currentBleedState.client_fd);
     }
-    lua_close(L);
+
+
 
     return 0;
 }
 
 BleedStream::~BleedStream() {
     close(server_socket);
+    delete lua;
 }
 

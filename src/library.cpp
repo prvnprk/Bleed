@@ -3,24 +3,18 @@
 
 static std::thread helloThread;
 
-std::ifstream mem_maps;
 
 void hello() {
-    BleedLua *lua = new BleedLua();
-    lua->execString(R"(
-            print("lua Test")
 
-        )");
-    delete lua;
 
     sleep(10);
 
     std::cout << "test in new thread" << std::endl;
 
-    std::stringstream mapsstream;
-    mapsstream << mem_maps.rdbuf();
-
-    std::cout << mapsstream.str() << std::endl;
+    // std::stringstream mapsstream;
+    // mapsstream << currentBleedState.mem_maps.rdbuf();
+    //
+    // std::cout << mapsstream.str() << std::endl;
 
 
 
@@ -33,24 +27,23 @@ void hello() {
     stream->serverLoop();
     delete stream;
 
-
-    while (true) {
-        printf("hello world stdout\n");
-        sleep(1);
-    }
-
-    mem_maps.close();
-
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     start_logger("BLEED: ");
 
-    mem_maps = std::ifstream("/proc/self/maps");
+    currentBleedState.mem_maps = std::ifstream("/proc/self/maps");
+
+    currentBleedState.mem = open("/proc/self/mem", O_RDONLY);
+
+    if (currentBleedState.mem == -1) {
+        printf("Error opening /proc/self/mem\n");
+
+    }
 
 
 
-    if (mem_maps.is_open()) {
+    if (currentBleedState.mem_maps.is_open()) {
         printf("Successfully accessed /proc/self/");
     } else {
         printf("Failed to access /proc/self/");
@@ -65,5 +58,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 void JNI_OnUnload(JavaVM *vm, void *reserved) {
+   close( currentBleedState.mem);
+    currentBleedState.mem_maps.close();
     if (helloThread.joinable()) helloThread.join();
 }

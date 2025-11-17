@@ -8,6 +8,10 @@
 #include <thread>
 #include "redirectOutput.h"
 #include "BleedStream.h"
+#include "states.h"
+#include <fcntl.h>
+#include <unistd.h>
+
 jint JNI_OnLoad(JavaVM *vm, void *reserved);
 void hello();
 

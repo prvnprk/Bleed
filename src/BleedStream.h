@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <iostream>
+#include <vector>
 
 #include "../include/lua/lua.hpp"
 
@@ -21,6 +22,7 @@ class BleedStream {
 
     int server_socket;
     sockaddr_in addr{};
+    BleedLua *lua;
 
     public:
     BleedStream();
