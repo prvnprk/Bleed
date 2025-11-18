@@ -50,24 +50,6 @@ int BleedLua::readMemory(lua_State *L) {
 
     memcpy(buf, (void *)offset, size);
 
-
-
-
-    // ssize_t bytes_read = pread(currentBleedState.mem, buf, size, offset);
-    //
-    // if (bytes_read < 0) {
-    //     free(buf);
-    //     return luaL_error(L, "pread failed");
-    // }
-    //
-    // printf("Read %d bytes\n", bytes_read);
-    // //
-    // // for (int i = 0; i < bytes_read; i++) {
-    // //     printf("%x ", buf[i]);
-    // // }
-
-
-    // lua_pushlstring(L, buf, bytes_read);
     lua_pushlstring(L, buf, size);
 
     free(buf);
