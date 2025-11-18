@@ -11,6 +11,7 @@
 #include "states.h"
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/ptrace.h>
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved);
 void hello();

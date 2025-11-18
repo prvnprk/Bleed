@@ -11,12 +11,6 @@ void hello() {
 
     std::cout << "test in new thread" << std::endl;
 
-    // std::stringstream mapsstream;
-    // mapsstream << currentBleedState.mem_maps.rdbuf();
-    //
-    // std::cout << mapsstream.str() << std::endl;
-
-
 
 
     BleedStream *stream = new BleedStream();
@@ -31,22 +25,25 @@ void hello() {
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     start_logger("BLEED: ");
+    // ptrace(PTRACE_TRACEME, 0, NULL, NULL);
 
     currentBleedState.mem_maps = std::ifstream("/proc/self/maps");
 
     currentBleedState.mem = open("/proc/self/mem", O_RDONLY);
 
     if (currentBleedState.mem == -1) {
-        printf("Error opening /proc/self/mem\n");
+        // printf("Error opening /proc/self/mem\n");
+        char *errorMessage = strerror(errno);
+        printf("Error opening /proc/self/mem: %s\n", errorMessage);
 
     }
 
 
 
     if (currentBleedState.mem_maps.is_open()) {
-        printf("Successfully accessed /proc/self/");
+        printf("Successfully accessed /proc/self/maps");
     } else {
-        printf("Failed to access /proc/self/");
+        printf("Failed to access /proc/self/maps");
     }
 
     pid_t current_pid = getpid();

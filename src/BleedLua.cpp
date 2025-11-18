@@ -21,40 +21,54 @@ BleedLua::BleedLua() {
 }
 
 int BleedLua::luaPrint(lua_State *L) {
+    size_t len;
+    const char *buf = luaL_checklstring(L, 1, &len);
 
-    const char *str = luaL_checkstring(L, 1);
 
-    send(currentBleedState.client_fd, str, strlen(str), 0);
+    send(currentBleedState.client_fd, buf, len, 0);
 
-    printf("custom %s\n", str);
-
-    lua_pushlstring(L, str, strlen(str));
+    lua_pushlstring(L, buf, len);
 
     return 1;
-
-
 }
+
 
 int BleedLua::readMemory(lua_State *L) {
 
     int size = luaL_checkinteger(L, 1);
     long long offset = luaL_checkinteger(L, 2);
 
+
+
     char* buf = (char*)malloc(size);
+
+
+
     if (!buf)
         return luaL_error(L, "malloc failed");
 
-    ssize_t bytes_read = pread(currentBleedState.mem, buf, size, offset);
 
-    if (bytes_read < 0) {
-        free(buf);
-        return luaL_error(L, "pread failed");
-    }
-
-    printf("Read %d bytes\n", bytes_read);
+    memcpy(buf, (void *)offset, size);
 
 
-    lua_pushlstring(L, buf, bytes_read);
+
+
+    // ssize_t bytes_read = pread(currentBleedState.mem, buf, size, offset);
+    //
+    // if (bytes_read < 0) {
+    //     free(buf);
+    //     return luaL_error(L, "pread failed");
+    // }
+    //
+    // printf("Read %d bytes\n", bytes_read);
+    // //
+    // // for (int i = 0; i < bytes_read; i++) {
+    // //     printf("%x ", buf[i]);
+    // // }
+
+
+    // lua_pushlstring(L, buf, bytes_read);
+    lua_pushlstring(L, buf, size);
 
     free(buf);
     return 1;
