@@ -1,6 +1,7 @@
 name: Android-Bleed-Build-Release
 
 on:
+  workflow_dispatch: 
   push:
     tags: ['v*']
 
@@ -64,15 +65,21 @@ jobs:
 
     - name: Package Release
       run: |
-        # This zips the two folders so the user gets a clean structure
-        Compress-Archive -Path "build\arm64-v8a\", "build\armeabi-v7a\" -DestinationPath Bleed-Android.zip
+
+        New-Item -ItemType Directory -Force -Path "dist\arm64-v8a"
+        New-Item -ItemType Directory -Force -Path "dist\armeabi-v7a"
+
+        Copy-Item "build\arm64-v8a\libBleed.so" -Destination "dist\arm64-v8a\"
+        Copy-Item "build\armeabi-v7a\libBleed.so" -Destination "dist\armeabi-v7a\"
+
+        Compress-Archive -Path "dist\*" -DestinationPath Bleed-Android.zip
 
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         files: Bleed-Android.zip
-        body: "BLEED Android Native Library: "
+        body: "BLEED Android Native Library (Contains arm64-v8a and armeabi-v7a folders)"
         draft: false
         prerelease: false
       env:
