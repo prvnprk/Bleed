@@ -58,6 +58,22 @@ int BleedLua::readMemory(lua_State *L) {
 
 int BleedLua::writeMemory(lua_State *L) {
 
+    long long address = luaL_checkinteger(L, 1);
+
+    size_t size;
+    const char* data = luaL_checklstring(L, 2, &size);
+
+    long pageSize = sysconf(_SC_PAGESIZE); //4096
+
+    void* pageStart = (void*)(address & ~(pageSize - 1));
+
+    mprotect(pageStart, pageSize, PROT_READ | PROT_WRITE | PROT_EXEC);
+
+
+    memcpy((void*)address, data, size);
+
+
+    return 0;
 }
 
 int BleedLua::readMaps(lua_State *L) {

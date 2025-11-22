@@ -11,6 +11,7 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <string.h>
+#include <sys/mman.h>
 
 class BleedLua {
     lua_State *L;
