@@ -65,14 +65,14 @@ jobs:
     - name: Package Release
       run: |
         # This zips the two folders so the user gets a clean structure
-        Compress-Archive -Path "build\arm64-v8a\libBleed.so", "build\armeabi-v7a\libBleed.so" -DestinationPath Bleed-Android.zip
+        Compress-Archive -Path "build\arm64-v8a\", "build\armeabi-v7a\" -DestinationPath Bleed-Android.zip
 
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         files: Bleed-Android.zip
-        body: "BLEED Android Native Library (Contains arm64-v8a and armeabi-v7a)"
+        body: "BLEED Android Native Library: "
         draft: false
         prerelease: false
       env:
