@@ -25,7 +25,6 @@ void hello() {
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     start_logger("BLEED: ");
-    // ptrace(PTRACE_TRACEME, 0, NULL, NULL);
 
     currentBleedState.mem_maps = std::ifstream("/proc/self/maps");
 
