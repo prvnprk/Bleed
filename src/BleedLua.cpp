@@ -38,23 +38,30 @@ int BleedLua::readMemory(lua_State *L) {
     int size = luaL_checkinteger(L, 1);
     long long offset = luaL_checkinteger(L, 2);
 
-
-
     char* buf = (char*)malloc(size);
-
-
-
     if (!buf)
         return luaL_error(L, "malloc failed");
 
-
-    memcpy(buf, (void *)offset, size);
+    if (B_readmem(offset, buf, size) != 0) {
+        free(buf);
+        return luaL_error(L, "read failed");
+    }
 
     lua_pushlstring(L, buf, size);
 
     free(buf);
     return 1;
 }
+
+
+int BleedLua::B_readmem(long long offset, void* buf, int size) {
+    if (!buf || size <= 0 || offset == 0)
+        return -1;
+
+    memcpy(buf, (void*)offset, size);
+    return 0;
+}
+
 
 int BleedLua::writeMemory(lua_State *L) {
 
@@ -63,18 +70,28 @@ int BleedLua::writeMemory(lua_State *L) {
     size_t size;
     const char* data = luaL_checklstring(L, 2, &size);
 
-    long pageSize = sysconf(_SC_PAGESIZE); //4096
-
-    void* pageStart = (void*)(address & ~(pageSize - 1));
-
-    mprotect(pageStart, pageSize, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-
-    memcpy((void*)address, data, size);
-
+    if (B_writemem(address, data, (int)size) != 0)
+        return luaL_error(L, "memory write failed");
 
     return 0;
 }
+
+
+int BleedLua::B_writemem(long long address, const void* data, int size) {
+    if (!data || size <= 0 || address == 0)
+        return -1;
+
+    long pageSize = sysconf(_SC_PAGESIZE); // usually 4096
+    void* pageStart = (void*)(address & ~(pageSize - 1));
+
+    if (mprotect(pageStart, pageSize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0)
+        return -2;
+
+    memcpy((void*)address, data, size);
+
+    return 0;
+}
+
 
 int BleedLua::readMaps(lua_State *L) {
 

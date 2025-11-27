@@ -30,6 +30,9 @@ class BleedLua {
     static int readMaps(lua_State *L);
     static int luaPrint(lua_State *L);
 
+    static int B_readmem(long long offset, void* buf, int size);
+    static int B_writemem(long long address, const void* data, int size);
+
 };
 
 
