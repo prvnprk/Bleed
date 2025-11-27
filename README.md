@@ -1,6 +1,6 @@
  
 # BLEED
-***
+
 [![Android-Bleed-Build-Windows](https://github.com/prvnprk/Bleed/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/prvnprk/Bleed/actions/workflows/cmake-single-platform.yml)
 
 **Bleed** is a lightweight Android dynamic instrumentation library backed by Lua. It allows reverse engineers and developers to inject code, read/write memory, and inspect process memory maps dynamically using Lua scripts.
