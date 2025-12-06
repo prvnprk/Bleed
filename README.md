@@ -121,7 +121,7 @@ Reads a specific number of bytes from a memory address.
 *   **Returns:** A string containing the raw bytes.
 
 ```lua
--- Example: Read 4 bytes from address 0x12345678
+Example: read 4 bytes from address 0x12345678
 print(readMem(4, 0x12345678))
 ```
 
@@ -133,7 +133,7 @@ Writes raw bytes to a memory address. This function automatically calls `mprotec
     *   `data` (string): Raw bytes to write.
 
 ```lua
-Example: Write 2 bytes (0x90 0x90) to address 0x12345678
+Example: write 2 bytes (0x90 0x90) to address 0x12345678
 writeMem(0x12345678, "\x90\x90")
 ```
 
