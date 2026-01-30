@@ -65,7 +65,7 @@ int BleedLua::B_readmem(long long offset, void* buf, int size) {
 
     unsigned char vec;
 
-    if (mincore(offset, size, &vec ))
+    // if (mincore(offset, size, &vec ))
 
     memcpy(buf, (void*)offset, size);
 
