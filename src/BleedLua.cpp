@@ -18,6 +18,12 @@ BleedLua::BleedLua() {
     lua_register(L, "writeMem", writeMemory);
     lua_register(L, "readMaps", readMaps);
     lua_register(L, "print", luaPrint);
+    lua_register(L, "testMod", testMod);
+}
+
+int BleedLua::testMod(lua_State *L) {
+    printf("test");
+    return 0;
 }
 
 int BleedLua::luaPrint(lua_State *L) {
@@ -42,7 +48,8 @@ int BleedLua::readMemory(lua_State *L) {
     if (!buf)
         return luaL_error(L, "malloc failed");
 
-    if (B_readmem(offset, buf, size) != 0) {
+
+    if ( B_readmem(offset, buf, size) != 0) {
         free(buf);
         return luaL_error(L, "read failed");
     }
@@ -55,10 +62,14 @@ int BleedLua::readMemory(lua_State *L) {
 
 
 int BleedLua::B_readmem(long long offset, void* buf, int size) {
-    if (!buf || size <= 0 || offset == 0)
-        return -1;
+
+    unsigned char vec;
+
+    if (mincore(offset, size, &vec ))
 
     memcpy(buf, (void*)offset, size);
+
+
     return 0;
 }
 
