@@ -43,7 +43,7 @@ Once connected, you can run these commands:
 ## Building
 
 **Requirements:**
-*   Android NDK (r27d recommended)
+*   Android NDK
 *   CMake & Ninja
 
 Edit `build_all.bat` to point to your NDK path, then run it:
